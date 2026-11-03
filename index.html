@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Empréstimo SENAI</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+
+    <div class="app-container" id="app-container">
+        
+        <!-- ================= TELA 1: LOGIN E CADASTRO ================= -->
+        <div id="tela-auth" class="screen active">
+            <div class="card-cadastro fade-in">
+                
+                <!-- BOX DE LOGIN -->
+                <div id="box-login">
+                    <h1>Bem-vindo!</h1>
+                    <p class="subtitle">Informe seu e-mail educacional para entrar.</p>
+
+                    <form id="form-login" onsubmit="fazerLoginEvent(event)">
+                        <div class="input-group">
+                            <label>E-mail educacional</label>
+                            <div class="input-box">
+                                <i class="ph ph-envelope-simple"></i>
+                                <input type="email" id="login-email" placeholder="E-mail educacional" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Senha</label>
+                            <div class="input-box">
+                                <i class="ph ph-lock-key"></i>
+                                <input type="password" id="login-senha" placeholder="Sua senha" required>
+                                <i class="ph ph-eye btn-eye" onclick="togglePassword('login-senha')"></i>
+                            </div>
+                        </div>
+
+                        <!-- Campos ocultados para Professores e Criador -->
+                        <div id="campos-aula">
+                            <div class="input-group">
+                                <label>Sua Turma</label>
+                                <div class="input-box">
+                                    <i class="ph ph-users"></i>
+                                    <input type="text" id="login-turma" placeholder="Ex: 1A, 2E, 3D..." maxlength="2" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Aula / Matéria</label>
+                                <div class="input-box">
+                                    <i class="ph ph-book-open"></i>
+                                    <input type="text" id="login-aula" placeholder="Ex: Matemática, D.S..." required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Professor Responsável</label>
+                                <div class="input-box">
+                                    <i class="ph ph-chalkboard-teacher"></i>
+                                    <input type="text" id="login-prof" placeholder="Ex: Prof. Carlos" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <span id="erro-login" class="error-msg">Informe um e-mail educacional válido.</span>
+
+                        <button type="submit" class="btn-primary">Entrar <i class="ph ph-sign-in"></i></button>
+                    </form>
+                    <p class="switch-form">Não tem conta? <span onclick="switchAuth('cadastro')">Cadastre-se</span></p>
+                </div>
+
+                <!-- BOX DE CADASTRO -->
+                <div id="box-cadastro" class="hide">
+                    <h1>Faça seu cadastro</h1>
+                    <p class="subtitle">Crie sua conta no sistema do SENAI.</p>
+                    <form id="form-cadastro">
+                        <div class="input-group">
+                            <label>Nome completo</label>
+                            <div class="input-box">
+                                <i class="ph ph-user"></i>
+                                <input type="text" id="cad-nome" placeholder="Digite seu nome" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>E-mail educacional</label>
+                            <div class="input-box">
+                                <i class="ph ph-envelope-simple"></i>
+                                <input type="email" id="cad-email" placeholder="E-mail educacional" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Senha</label>
+                            <div class="input-box">
+                                <i class="ph ph-lock-key"></i>
+                                <input type="password" id="cad-senha" placeholder="Crie uma senha" required>
+                                <i class="ph ph-eye btn-eye" onclick="togglePassword('cad-senha')"></i>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Confirmar senha</label>
+                            <div class="input-box">
+                                <i class="ph ph-lock-key"></i>
+                                <input type="password" id="cad-confirma" placeholder="Confirme a senha" required>
+                            </div>
+                        </div>
+
+                        <span id="erro-cadastro" class="error-msg">Verifique as senhas e o e-mail.</span>
+                        <button type="submit" class="btn-primary">Cadastrar <i class="ph ph-user-plus"></i></button>
+                    </form>
+                    <p class="switch-form">Já tem conta? <span onclick="switchAuth('login')">Faça Login</span></p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= TELA 2: DASHBOARD (ALUNOS) ================= -->
+        <div id="tela-dashboard" class="screen">
+            <div id="toast" class="toast">Notificação aqui</div>
+            <div id="menu-overlay" class="menu-overlay"></div>
+
+            <aside id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Menu</h3>
+                    <i class="ph ph-x btn-close-menu" id="close-menu"></i>
+                </div>
+                <ul class="sidebar-links">
+                    <li id="btn-master-to-admin" class="hide" style="color: #FACC15;" onclick="mudarParaAdmin()"><i class="ph ph-shield-check"></i> Painel do Professor</li>
+                    <li id="btn-abrir-historico"><i class="ph ph-clock-counter-clockwise"></i> Histórico de Empréstimos</li>
+                    <li id="btn-theme-toggle"><i class="ph ph-sun"></i> <span id="theme-text">Modo Claro</span></li>
+                    <li id="btn-ajuda"><i class="ph ph-whatsapp-logo"></i> Suporte (WhatsApp)</li>
+                    <li class="logout" onclick="fazerLogout()"><i class="ph ph-sign-out"></i> Sair</li>
+                </ul>
+            </aside>
+
+            <!-- MODAL DE HISTÓRICO -->
+            <div id="modal-historico" class="modal-historico hide">
+                <div class="modal-historico-header">
+                    <h3>Meus Empréstimos</h3>
+                    <i class="ph ph-x btn-close-modal" id="btn-close-historico"></i>
+                </div>
+                <div class="modal-historico-body">
+                    <ul id="lista-historico">
+                        <li class="empty-msg">Nenhum empréstimo realizado ainda.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Cabeçalho Centralizado e Discreto -->
+            <header class="header slide-down">
+                <div class="user-info">
+                    <div class="avatar"><i class="ph ph-user"></i></div>
+                    <div>
+                        <span class="email" id="user-name-display">Aluno</span><br>
+                        <span id="user-class-display">Turma - Aula</span>
+                    </div>
+                </div>
+                <i class="ph ph-list menu-icon" id="open-menu"></i>
+            </header>
+
+            <main class="dashboard-content fade-in">
+                <h2>Computador</h2>
+                
+                <div class="computer-display">
+                    <div class="drawing-sun">
+                        <svg viewBox="0 0 100 100" width="120" height="120" stroke-width="4" fill="none" stroke-linecap="round">
+                            <circle cx="50" cy="50" r="30" stroke-dasharray="10 5" />
+                            <line x1="50" y1="5" x2="50" y2="15" />
+                            <line x1="50" y1="85" x2="50" y2="95" />
+                            <line x1="5" y1="50" x2="15" y2="50" />
+                            <line x1="85" y1="50" x2="95" y2="50" />
+                            <line x1="18" y1="18" x2="25" y2="25" />
+                        </svg>
+                    </div>
+                    
+                    <div id="computer-number" class="number"></div>
+                    <div class="line"></div>
+                    
+                    <div class="input-pc-container" id="container-input-pc">
+                        <input type="number" id="manual-pc-input" placeholder="Nº específico (opcional)" min="1">
+                    </div>
+                </div>
+
+                <button id="btn-action" class="btn-action">
+                    <span id="btn-text">REGISTRAR</span>
+                </button>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="carregador">
+                    <label for="carregador">Carregador</label>
+                </div>
+            </main>
+        </div>
+
+        <!-- ================= TELA 3: ÁREA DO PROFESSOR / ADMIN ================= -->
+        <div id="tela-admin" class="screen">
+            <header class="header slide-down" style="padding: 25px 20px 10px 20px;">
+                <div class="user-info" style="flex-direction: row; gap: 12px; text-align: left;">
+                    <div class="avatar" style="background-color: #CC0000; color: white;"><i class="ph ph-shield-check"></i></div>
+                    <div>
+                        <span class="email" style="font-size: 15px;">Área do Professor</span><br>
+                        <span style="font-size: 11px; color: var(--text-subtitle);">Visão Geral de Empréstimos</span>
+                    </div>
+                </div>
+                <i class="ph ph-sign-out menu-icon" style="color: #CC0000;" onclick="fazerLogout()"></i>
+            </header>
+
+            <main class="dashboard-content fade-in" style="align-items: stretch; padding: 15px 20px;">
+                
+                <!-- Botão Especial para a Conta do Criador -->
+                <div id="box-master-switch" class="hide" style="margin-bottom: 15px;">
+                    <button onclick="mudarParaAluno()" class="btn-primary" style="background-color: #6C5CE7; color: white; padding: 10px; margin-top: 0;">
+                        <i class="ph ph-user-switch"></i> Ir para Visão do Aluno
+                    </button>
+                </div>
+
+                <!-- Painel com Indicadores -->
+                <div class="admin-stats">
+                    <div class="stat-box">
+                        <span id="stat-em-uso">0</span>
+                        <p>PCs em Uso</p>
+                    </div>
+                    <div class="stat-box" style="border-bottom-color: #4CAF50;">
+                        <span id="stat-devolvidos">0</span>
+                        <p>Devolvidos Hoje</p>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--text-app); margin-bottom: 12px; font-size: 16px;">PCs em uso agora:</h3>
+                
+                <div id="admin-lista-pcs" style="width: 100%; max-height: 480px; overflow-y: auto;">
+                    <!-- Cards dos PCs em uso inseridos via JS -->
+                </div>
+            </main>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
